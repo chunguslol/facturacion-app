@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:13.1
+    container_name: facturacion-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: supersecreto_admin
+      POSTGRES_DB: billing_db
+    ports:
+      - "5432:5432"
+
+  # Tu App Java
+  app:
+    build: .
+    container_name: facturacion-app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      # AQUÍ ESTÁ EL TRUCO: usamos 'db' (el nombre del servicio arriba)
+      # en lugar de una IP física. Docker resuelve esto internamente.
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/billing_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: supersecreto_admin
