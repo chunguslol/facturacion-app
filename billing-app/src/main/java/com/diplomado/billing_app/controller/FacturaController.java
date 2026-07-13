@@ -1,7 +1,7 @@
 package com.diplomado.billing_app.controller;
 
 import com.diplomado.billing_app.model.Factura;
-import com.diplomado.billinga_pp.repository.FacturaRepository;
+import com.diplomado.billing_app.repository.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
