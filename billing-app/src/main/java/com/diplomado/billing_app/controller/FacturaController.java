@@ -24,8 +24,7 @@ public class FacturaController {
         return "index"; // Esto busca el archivo index.html en /templates
     }
 
-    // MÉTODO SEGURO: Usamos Spring Data JPA
-    // SonarQube no reportará problemas aquí porque usamos parámetros seguros
+
     @GetMapping("/listar")
     public List<Factura> listarFacturas() {
         return facturaRepository.findAll();

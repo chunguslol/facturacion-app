@@ -61,7 +61,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>false</filtering> <!-- ESTO ES LO QUE SOLUCIONA EL ERROR -->
+				<filtering>false</filtering>
 			</resource>
 		</resources>
 		<plugins>
