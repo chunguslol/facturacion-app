@@ -1,6 +1,6 @@
-package com.diplomado.billingapp.repository;
+package com.diplomado.billing_app.repository;
 
-import com.diplomado.billingapp.model.Factura;
+import com.diplomado.billing_app.model.Factura;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
