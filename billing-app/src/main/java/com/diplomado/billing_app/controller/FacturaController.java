@@ -1,4 +1,4 @@
-package com.diplomado.billingapp.controller;
+package com.diplomado.billing_app.controller;
 
 import com.diplomado.billingapp.model.Factura;
 import com.diplomado.billingapp.repository.FacturaRepository;

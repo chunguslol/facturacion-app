@@ -1,4 +1,4 @@
-package com.diplomado.billingapp.model;
+package com.diplomado.billing_app.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
