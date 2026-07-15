@@ -2,51 +2,84 @@ package com.diplomado.billing_app.controller;
 
 import com.diplomado.billing_app.model.Factura;
 import com.diplomado.billing_app.repository.FacturaRepository;
+import com.diplomado.billing_app.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.Cookie;
 
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@Controller
 @RequestMapping("/api/facturas")
 public class FacturaController {
 
     @Autowired
     private FacturaRepository facturaRepository;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @GetMapping("/")
-    public String index() {
-        return "index"; // Esto busca el archivo index.html en /templates
+    private Long getUserIdFromCookies(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("AUTH_TOKEN".equals(cookie.getName())) {
+                    return JwtUtil.getUserIdFromToken(cookie.getValue());
+                }
+            }
+        }
+        return null;
     }
 
+    @GetMapping("/dashboard")
+    public String dashboard(HttpServletRequest request, Model model) {
+        Long userId = getUserIdFromCookies(request);
+        if (userId == null) return "redirect:/login"; // No autenticado
 
-    @GetMapping("/listar")
-    public List<Factura> listarFacturas() {
-        return facturaRepository.findAll();
+        // Muestra todas las facturas del usuario conectado
+        String sql = "SELECT * FROM facturas WHERE propietario_id = " + userId;
+        List<Map<String, Object>> facturas = jdbcTemplate.queryForList(sql);
+        model.addAttribute("facturas", facturas);
+        return "dashboard";
     }
 
-    // MÉTODO VULNERABLE (SQL INJECTION)
-    // SonarQube marcará esto como una vulnerabilidad CRÍTICA
-    // Estamos concatenando el parámetro 'cliente' directamente a la consulta SQL
+    // VULNERABILIDAD A03: SQL Injection clásico.
     @GetMapping("/buscar")
-    public List<Map<String, Object>> buscarPorCliente(@RequestParam String cliente) {
-        String sql = "SELECT * FROM facturas WHERE cliente = '" + cliente + "'";
-        return jdbcTemplate.queryForList(sql);
+    public String buscarPorCliente(@RequestParam String cliente, HttpServletRequest request, Model model) {
+        Long userId = getUserIdFromCookies(request);
+        if (userId == null) return "redirect:/login";
+
+        // EL VENENO: Concatenación directa de input de usuario en la base de datos.
+        String sql = "SELECT * FROM facturas WHERE propietario_id = " + userId + " AND cliente = '" + cliente + "'";
+        List<Map<String, Object>> facturas = jdbcTemplate.queryForList(sql);
+        model.addAttribute("facturas", facturas);
+        return "dashboard";
     }
 
-    // VULNERABILIDAD A01 / B1: Insecure Direct Object Reference (IDOR)
-    // El sistema confía ciegamente en el ID proporcionado en la URL.
-    // Explotación: Si entro a /api/facturas/ver/1 y cambio el 1 por un 5,
-    // podré ver la factura de otra empresa sin autorización.
+    // VULNERABILIDAD A01 / B1: Broken Object Level Authorization (IDOR)
     @GetMapping("/ver/{id}")
-    public String verDetalleFactura(@PathVariable Long id, org.springframework.ui.Model model) {
-        Factura factura = facturaRepository.findById(id).orElse(new Factura("Desconocido", "No existe", 0.0));
+    public String verDetalleFactura(@PathVariable Long id, HttpServletRequest request, Model model) {
+        Long loggedInUserId = getUserIdFromCookies(request);
+        if (loggedInUserId == null) return "redirect:/login";
+
+        Factura factura = facturaRepository.findById(id).orElse(new Factura(0L, "N/A", "N/A", 0.0));
+
+        // EL VENENO (BOLA): Consultamos la factura por ID, PERO JAMÁS VERIFICAMOS
+        // si factura.getPropietarioId() == loggedInUserId.
+        // Cualquier usuario logueado puede ver facturas de la competencia cambiando el ID en la URL.
         model.addAttribute("factura", factura);
-        return "detalle"; // Carga la vista detalle.html
+        return "detalle";
+    }
+
+    @PostMapping("/crear")
+    public String crearFactura(@RequestParam String cliente, @RequestParam String detalle, @RequestParam Double monto, HttpServletRequest request) {
+        Long userId = getUserIdFromCookies(request);
+        if (userId != null) {
+            facturaRepository.save(new Factura(userId, cliente, detalle, monto));
+        }
+        return "redirect:/api/facturas/dashboard";
     }
 }

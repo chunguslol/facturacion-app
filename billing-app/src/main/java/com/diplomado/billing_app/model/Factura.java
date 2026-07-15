@@ -14,6 +14,7 @@ public class Factura {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long propietarioId;
     private String cliente;
     private String detalle;
     private Double monto;
@@ -21,13 +22,15 @@ public class Factura {
     // Constructores, Getters y Setters
     public Factura() {}
 
-    public Factura(String cliente, String detalle, Double monto) {
+    public Factura(Long propietarioId, String cliente, String detalle, Double monto) {
+        this.propietarioId = propietarioId;
         this.cliente = cliente;
         this.detalle = detalle;
         this.monto = monto;
     }
 
     public Long getId() { return id; }
+    public Long getPropietarioId() { return propietarioId; }
     public String getCliente() { return cliente; }
     public void setCliente(String cliente) { this.cliente = cliente; }
     public String getDetalle() { return detalle; }
