@@ -2,71 +2,76 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión Corporativa | BillingSec</title>
+    <title>Gestión Corporativa | BillingSec SaaS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-light">
 <div class="container mt-5">
-
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-danger">🛡️ Panel de Administración (Solo Personal Autorizado)</h2>
-        <a href="/api/facturas/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
+        <h2 class="text-dark fw-bold">👥 Gestión de Personal</h2>
+        <div>
+            <button type="button" class="btn btn-primary shadow-sm me-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+                + Nuevo Empleado
+            </button>
+            <a href="/api/facturas/dashboard" class="btn btn-outline-secondary fw-bold">Regresar</a>
+        </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">Usuarios del Sistema</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Rol de Acceso</th>
-                            <th>Hash (MD5)</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="user : ${usuarios}">
-                            <td th:text="${user.id}"></td>
-                            <td th:text="${user.username}" class="fw-bold"></td>
-                            <td>
-                                <span th:if="${user.rol == 'ADMIN'}" class="badge bg-danger">ADMIN</span>
-                                <span th:if="${user.rol == 'USER'}" class="badge bg-primary">USER</span>
-                            </td>
-                            <td th:text="${user.passwordHash}" class="text-muted small" style="font-family: monospace;"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-dark">
+                <tr>
+                    <th class="ps-4 py-3">ID</th>
+                    <th class="py-3">Usuario de Red</th>
+                    <th class="py-3">Nivel de Autorización</th>
+                    <th class="py-3">Estado de Seguridad</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${usuarios}">
+                    <td class="ps-4 fw-bold text-muted" th:text="${user.id}"></td>
+                    <td th:text="${user.username}" class="fw-bold text-primary"></td>
+                    <td>
+                        <span th:if="${user.rol == 'ADMIN'}" class="badge bg-danger rounded-pill px-3">Administrador</span>
+                        <span th:if="${user.rol == 'USER'}" class="badge bg-info text-dark rounded-pill px-3">Empleado</span>
+                    </td>
+                    <td><span class="badge bg-success bg-opacity-75">Activo (MD5 Hash)</span></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Crear Nuevo Empleado</h5>
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="modalLabel">Alta de Nuevo Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-warning small border-warning border-start border-4">
+                    <strong>⚠️ Nota del Sistema:</strong> Se asignará automáticamente la contraseña provisional <code>Cambiar123</code> a los nuevos usuarios.
                 </div>
-                <div class="card-body">
-                    <p class="small text-muted">Nota: La contraseña por defecto será asignada por el sistema.</p>
-                    <form th:action="@{/api/usuarios/crear}" method="post">
-                        <div class="mb-3">
-                            <label>Nombre de Usuario</label>
-                            <input type="text" name="username" class="form-control" placeholder="ej. j.perez" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Rol en el Sistema</label>
-                            <select name="rol" class="form-select">
-                                <option value="USER">Empleado (USER)</option>
-                                <option value="ADMIN">Gerente (ADMIN)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100">Registrar Empleado</button>
-                    </form>
-                </div>
+                <form th:action="@{/api/usuarios/crear}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Identificador de Usuario</label>
+                        <input type="text" name="username" class="form-control bg-light" placeholder="ej. m.gomez" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Rol de Acceso</label>
+                        <select name="rol" class="form-select bg-light">
+                            <option value="USER">Empleado (Lectura/Escritura limitada)</option>
+                            <option value="ADMIN">Gerencia (Acceso Total)</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold py-2">Generar Cuenta Corporativa</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

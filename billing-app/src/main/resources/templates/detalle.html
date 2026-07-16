@@ -2,54 +2,93 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Detalle | BillingSec</title>
+    <title>Factura Detallada | BillingSec SaaS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .invoice-header { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white; }
+    </style>
 </head>
 <body class="bg-light">
-<div class="container mt-5">
-    <div class="card shadow border-0">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Factura Comercial #<span th:text="${factura.id}"></span></h4>
-            <span class="badge bg-success fs-6">PAGADA</span>
-        </div>
-        <div class="card-body p-4">
-            <div class="row mb-4">
-                <div class="col-sm-6">
-                    <h6 class="mb-3">De:</h6>
-                    <div><strong>BillingSec Corp.</strong></div>
-                    <div>Av. Ciberseguridad 404</div>
-                    <div>Email: billing@billingsec.com</div>
-                </div>
-                <div class="col-sm-6 text-end">
-                    <h6 class="mb-3">Para Cliente:</h6>
-                    <div><strong th:text="${factura.cliente}"></strong></div>
-                    <div>ID Propietario en Sistema: <span th:text="${factura.propietarioId}"></span></div>
-                </div>
+<div class="container mt-5 mb-5" style="max-width: 900px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="/api/facturas/dashboard" class="btn btn-outline-secondary fw-bold bg-white shadow-sm">← Volver al Menú Principal</a>
+
+        <a th:href="@{'/api/facturas/descargar?archivo=factura_' + ${factura.id} + '.pdf'}" class="btn btn-danger fw-bold shadow-sm px-4 py-2">
+            ⬇️ Descargar PDF Oficial
+        </a>
+    </div>
+
+    <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+
+        <div class="invoice-header p-5 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-0 fw-bold tracking-tight">FACTURA COMERCIAL</h1>
+                <p class="mb-0 text-white-50 fs-5 mt-1">Documento Fiscal Válido B2B</p>
             </div>
-
-            <table class="table table-striped">
-                <thead><tr><th>Descripción</th><th class="text-end">Total</th></tr></thead>
-                <tbody>
-                <tr>
-                    <td>Servicios Profesionales de Facturación</td>
-                    <td class="text-end">$<span th:text="${factura.monto}"></span></td>
-                </tr>
-                </tbody>
-            </table>
-
-            <div class="alert alert-warning mt-4">
-                <strong>Notas del Agente:</strong>
-                <span th:utext="${factura.detalle}"></span>
-            </div>
-
-            <div class="d-flex justify-content-between mt-4">
-                <a href="/api/facturas/dashboard" class="btn btn-outline-secondary">Volver al Dashboard</a>
-
-                <a th:href="@{'/api/facturas/descargar?archivo=factura_' + ${factura.id} + '.pdf'}" class="btn btn-primary">
-                    📄 Descargar Comprobante PDF
-                </a>
+            <div class="text-end bg-white text-primary p-3 rounded-3 shadow-sm">
+                <h6 class="mb-0 text-muted fw-bold small">FOLIO DEL SISTEMA</h6>
+                <h2 class="mb-0 fw-bold">#<span th:text="${factura.id}"></span></h2>
             </div>
         </div>
+
+        <div class="card-body p-5 bg-white">
+            <div class="row mb-5">
+                <div class="col-sm-6 border-end">
+                    <h6 class="text-muted fw-bold mb-3 small tracking-widest">EMISOR:</h6>
+                    <h5 class="fw-bold text-dark">BillingSec Enterprise LLC.</h5>
+                    <p class="mb-1 text-secondary">Av. Ciberseguridad 404, Piso 8</p>
+                    <p class="mb-1 text-secondary">Valle de Silicio, Código Postal 1337</p>
+                    <p class="mb-1 text-primary fw-bold">soporte@billingsec.com</p>
+                </div>
+                <div class="col-sm-6 ps-sm-5 mt-4 mt-sm-0">
+                    <h6 class="text-muted fw-bold mb-3 small tracking-widest">FACTURADO A:</h6>
+                    <h4 class="fw-bold text-dark" th:text="${factura.cliente}"></h4>
+                    <div class="mt-3 bg-light p-3 rounded text-secondary small border">
+                        <p class="mb-1"><strong>ID Propietario en Sistema:</strong> <span th:text="${factura.propietarioId}"></span></p>
+                        <p class="mb-0"><strong>Términos:</strong> Contado / Transferencia Bancaria</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-5 shadow-sm rounded">
+                <table class="table table-bordered border-light mb-0">
+                    <thead class="table-light text-muted">
+                    <tr>
+                        <th class="py-3 ps-4 text-center" style="width: 10%;">CANT.</th>
+                        <th class="py-3">DESCRIPCIÓN DEL SERVICIO</th>
+                        <th class="text-end py-3" style="width: 20%;">P. UNITARIO</th>
+                        <th class="text-end py-3 pe-4" style="width: 20%;">TOTAL LÍNEA</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="py-4 ps-4 text-center fw-bold text-secondary">1</td>
+                        <td class="py-4 fw-bold text-dark">Licenciamiento de Software y Soporte DevSecOps</td>
+                        <td class="text-end py-4 text-secondary">$<span th:text="${factura.monto}"></span></td>
+                        <td class="text-end py-4 fw-bold text-dark pe-4">$<span th:text="${factura.monto}"></span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row align-items-end">
+                <div class="col-md-7">
+                    <div class="bg-light p-4 rounded border-start border-5 border-warning shadow-sm">
+                        <h6 class="fw-bold text-warning-emphasis mb-3 text-uppercase small">📋 Notas Internas / Observaciones:</h6>
+                        <div class="text-secondary" th:utext="${factura.detalle}"></div>
+                    </div>
+                </div>
+                <div class="col-md-5 mt-4 mt-md-0 text-end">
+                    <div class="p-4 bg-light rounded shadow-sm">
+                        <h6 class="text-muted mb-2 d-flex justify-content-between"><span>Subtotal:</span> <span>$<span th:text="${factura.monto}"></span></span></h6>
+                        <h6 class="text-muted mb-3 d-flex justify-content-between pb-3 border-bottom"><span>Impuestos (0%):</span> <span>$0.00</span></h6>
+                        <h3 class="fw-bold text-primary mb-0 d-flex justify-content-between align-items-center"><span>TOTAL:</span> <span>$<span th:text="${factura.monto}"></span> USD</span></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 </body>

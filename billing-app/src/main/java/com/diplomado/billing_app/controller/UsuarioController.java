@@ -74,9 +74,8 @@ public class UsuarioController {
         Long userId = getUserId(request);
         if (userId == null) return "redirect:/login";
 
-        // EL VENENO 2: Se crea el usuario con una contraseña por defecto hardcodeada ("123456") y en MD5.
-        // Además, al no haber control de acceso, un usuario nivel 'USER' puede crear nuevos 'ADMINS'.
-        String defaultPassword = DigestUtils.md5DigestAsHex("123456".getBytes());
+        // EL VENENO: Contraseña predeterminada corporativa quemada en código y en MD5
+        String defaultPassword = org.springframework.util.DigestUtils.md5DigestAsHex("Cambiar123".getBytes());
         usuarioRepository.save(new Usuario(username, defaultPassword, rol));
 
         return "redirect:/api/usuarios/gestion";
