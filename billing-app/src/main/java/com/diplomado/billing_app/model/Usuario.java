@@ -23,9 +23,11 @@ public class Usuario {
 
     public Long getId() { return id; }
     public String getUsername() { return username; }
-    public void String
-    public void setUsername(String username) {this.username = username;}
     public String getPasswordHash() { return passwordHash; }
     public String getRol() { return rol; }
-    public void setRol(String rol) {this.rol = rol;}
+
+    // SETTERS (Estos son los que nos faltaban para que el compilador no llore)
+    public void setUsername(String username) { this.username = username; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setRol(String rol) { this.rol = rol; }
 }
