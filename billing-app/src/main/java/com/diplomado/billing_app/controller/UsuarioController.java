@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -34,9 +35,6 @@ public class UsuarioController {
         return "perfil";
     }
 
-    // VULNERABILIDAD CRÍTICA: Asignación Masiva (Mass Assignment / Insecure Binding)
-    // El objeto 'Usuario' recibe los datos del formulario. Si un atacante añade el parámetro '&rol=ADMIN'
-    // en la petición HTTP, Spring Boot lo mapeará automáticamente y le dará privilegios de Administrador.
     @PostMapping("/perfil/actualizar")
     public String actualizarPerfil(Usuario usuarioActualizado, HttpServletRequest request) {
         Long userId = getUserId(request);
@@ -44,7 +42,6 @@ public class UsuarioController {
             Usuario userDb = usuarioRepository.findById(userId).orElse(null);
             if (userDb != null) {
                 userDb.setUsername(usuarioActualizado.getUsername());
-                // El error: ¡No filtramos el campo ROL! Si el atacante lo manda, se sobreescribe.
                 if (usuarioActualizado.getRol() != null) {
                     userDb.setRol(usuarioActualizado.getRol());
                 }
@@ -52,5 +49,36 @@ public class UsuarioController {
             }
         }
         return "redirect:/api/usuarios/perfil?actualizado=true";
+    }
+
+    // =====================================================================
+    // NUEVAS FUNCIONES DE ADMINISTRACIÓN (VULNERABLES)
+    // =====================================================================
+
+    // VULNERABILIDAD A01: Falta de Control de Acceso a Nivel de Función (Broken Access Control)
+    // EL VENENO: Verificamos que el usuario esté logueado (userId != null), pero JAMÁS
+    // verificamos si su rol es "ADMIN". Cualquier usuario que adivine o conozca esta URL
+    // podrá acceder al panel de control de la empresa.
+    @GetMapping("/gestion")
+    public String gestionarUsuarios(HttpServletRequest request, Model model) {
+        Long userId = getUserId(request);
+        if (userId == null) return "redirect:/login"; // Solo verifica autenticación, NO autorización
+
+        model.addAttribute("usuarios", usuarioRepository.findAll());
+        return "gestion-usuarios";
+    }
+
+    // VULNERABILIDAD A02 & A01: Escalada de privilegios y contraseñas débiles
+    @PostMapping("/crear")
+    public String crearUsuario(HttpServletRequest request, @RequestParam String username, @RequestParam String rol) {
+        Long userId = getUserId(request);
+        if (userId == null) return "redirect:/login";
+
+        // EL VENENO 2: Se crea el usuario con una contraseña por defecto hardcodeada ("123456") y en MD5.
+        // Además, al no haber control de acceso, un usuario nivel 'USER' puede crear nuevos 'ADMINS'.
+        String defaultPassword = DigestUtils.md5DigestAsHex("123456".getBytes());
+        usuarioRepository.save(new Usuario(username, defaultPassword, rol));
+
+        return "redirect:/api/usuarios/gestion";
     }
 }

@@ -21,7 +21,12 @@
                 <input type="text" class="form-control bg-light" th:value="${usuario.rol}" disabled>
             </div>
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <div th:if="${usuario.rol == 'ADMIN'}" class="mt-4 p-3 bg-dark rounded text-center">
+                <p class="text-white mb-2">Opciones de Gerencia:</p>
+                <a href="/api/usuarios/gestion" class="btn btn-outline-light w-100">👥 Ir al Panel de Gestión de Usuarios</a>
+            </div>
             <a href="/api/facturas/dashboard" class="btn btn-secondary">Volver</a>
+
         </form>
     </div>
 </div>
