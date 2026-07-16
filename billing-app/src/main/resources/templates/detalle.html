@@ -7,18 +7,49 @@
 </head>
 <body class="bg-light">
 <div class="container mt-5">
-    <div class="card p-4 shadow border-danger">
-        <h2 class="text-danger">Factura Confidencial #<span th:text="${factura.id}"></span></h2>
-        <p><strong>Propietario ID:</strong> <span th:text="${factura.propietarioId}"></span></p>
-        <p><strong>Cliente:</strong> <span th:text="${factura.cliente}"></span></p>
-        <p><strong>Monto:</strong> $<span th:text="${factura.monto}"></span></p>
-
-        <div class="alert alert-warning">
-            <strong>Observaciones:</strong>
-            <span th:utext="${factura.detalle}"></span>
+    <div class="card shadow border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Factura Comercial #<span th:text="${factura.id}"></span></h4>
+            <span class="badge bg-success fs-6">PAGADA</span>
         </div>
+        <div class="card-body p-4">
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <h6 class="mb-3">De:</h6>
+                    <div><strong>BillingSec Corp.</strong></div>
+                    <div>Av. Ciberseguridad 404</div>
+                    <div>Email: billing@billingsec.com</div>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <h6 class="mb-3">Para Cliente:</h6>
+                    <div><strong th:text="${factura.cliente}"></strong></div>
+                    <div>ID Propietario en Sistema: <span th:text="${factura.propietarioId}"></span></div>
+                </div>
+            </div>
 
-        <a href="/api/facturas/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
+            <table class="table table-striped">
+                <thead><tr><th>Descripción</th><th class="text-end">Total</th></tr></thead>
+                <tbody>
+                <tr>
+                    <td>Servicios Profesionales de Facturación</td>
+                    <td class="text-end">$<span th:text="${factura.monto}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning mt-4">
+                <strong>Notas del Agente:</strong>
+                <span th:utext="${factura.detalle}"></span>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/api/facturas/dashboard" class="btn btn-outline-secondary">Volver al Dashboard</a>
+
+                <a th:href="@{'/api/facturas/descargar?archivo=factura_' + ${factura.id} + '.pdf'}" class="btn btn-primary">
+                    📄 Descargar Comprobante PDF
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 </body>

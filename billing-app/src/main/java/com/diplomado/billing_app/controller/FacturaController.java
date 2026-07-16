@@ -10,6 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.Cookie;
+import java.io.File;
+import java.nio.file.Files;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -81,5 +84,24 @@ public class FacturaController {
             facturaRepository.save(new Factura(userId, cliente, detalle, monto));
         }
         return "redirect:/api/facturas/dashboard";
+    }
+
+    @GetMapping("/descargar")
+    public void descargarComprobante(@RequestParam String archivo, HttpServletResponse response, HttpServletRequest request) throws Exception {
+        Long userId = getUserIdFromCookies(request);
+        if (userId == null) return;
+
+        // Construcción insegura de la ruta del archivo
+        File file = new File(archivo);
+
+        if (file.exists()) {
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            Files.copy(file.toPath(), response.getOutputStream());
+            response.getOutputStream().flush();
+        } else {
+            // Simulamos que el archivo PDF de la factura no se generó aún para facturas nuevas
+            response.sendError(404, "El PDF de la factura aún no ha sido generado por el sistema batch.");
+        }
     }
 }
