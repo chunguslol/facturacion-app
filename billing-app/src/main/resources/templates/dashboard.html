@@ -26,6 +26,39 @@
         </tr>
         </tbody>
     </table>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm border-info">
+                <h5>🔗 Probar Webhook API</h5>
+                <p class="text-muted small">Haz un ping a tu API externa para notificaciones.</p>
+                <form th:action="@{/api/facturas/test-webhook}" method="get">
+                    <input type="url" name="url" class="form-control mb-2" placeholder="https://api.tuempresa.com/ping" required>
+                    <button type="submit" class="btn btn-info w-100">Probar Conexión</button>
+                </form>
+                <div th:if="${mensajeWebhook}" class="alert alert-dark mt-2 p-1 small" th:text="${mensajeWebhook}"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm border-warning">
+                <h5>📁 Importar Factura (XML)</h5>
+                <p class="text-muted small">Carga tu factura en formato estructurado.</p>
+                <form th:action="@{/api/facturas/importar-xml}" method="post">
+                    <textarea name="xmlData" class="form-control mb-2" rows="3" placeholder="<factura><cliente>Empresa SA</cliente></factura>" required></textarea>
+                    <button type="submit" class="btn btn-warning w-100">Procesar XML</button>
+                </form>
+                <div th:if="${mensajeXML}" class="alert alert-dark mt-2 p-1 small" th:text="${mensajeXML}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mis Facturas</h2>
+        <div>
+            <a href="/api/usuarios/perfil" class="btn btn-outline-primary me-2">⚙️ Mi Perfil</a>
+            <a href="/login" class="btn btn-outline-danger">Cerrar Sesión</a>
+        </div>
+    </div>
 
     <hr>
     <h4>Nueva Factura</h4>
